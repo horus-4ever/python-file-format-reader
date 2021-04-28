@@ -1,0 +1,127 @@
+map Machine where
+    | 0x14c > "x86 (32 bits)"
+    | 0x8664 > "amd64 (64 bits)"
+end
+
+map Subsystem where
+    | 0 > "IMAGE_SUBSYSTEM_UNKNOWN (0)"
+    | 1 > "IMAGE_SUBSYSTEM_NATIVE (1)"
+    | 2 > "IMAGE_SUBSYSTEM_WINDOWS_GUI (2)"
+    | 3 > "IMAGE_SUBSYSTEM_WINDOWS_CUI (3)"
+end
+
+bitflag Characteristics where
+    | 0x0001 > IMAGE_FILE_RELOCS_STRIPPED
+    | 0x0002 > IMAGE_FILE_EXECUTABLE_IMAGE
+    | 0x0004 > IMAGE_FILE_LINE_NUMS_STRIPPED
+    | 0x0008 > IMAGE_FILE_LOCAL_SYMS_STRIPPED
+    | 0x0010 > IMAGE_FILE_AGGRESSIVE_WS_TRIM
+    | 0x0020 > IMAGE_FILE_LARGE_ADDRESS_AWARE
+    | 0x0080 > IMAGE_FILE_BYTES_REVERSED_LO
+    | 0x0100 > IMAGE_FILE_32BIT_MACHINE
+    | 0x0200 > IMAGE_FILE_DEBUG_STRIPPED
+    | 0x0400 > IMAGE_FILE_REMOVABLE_RUN_FROM_SWAP
+    | 0x0800 > IMAGE_FILE_NET_RUN_FROM_SWAP
+    | 0x1000 > IMAGE_FILE_SYSTEM
+    | 0x2000 > IMAGE_FILE_DLL
+    | 0x4000 > IMAGE_FILE_UP_SYSTEM_ONLY
+    | 0x8000 > IMAGE_FILE_BYTES_REVERSED_HI
+end
+
+bitflag DllCharacteristics where
+    | 0x0020 > IMAGE_DLLCHARACTERISTICS_HIGH_ENTROPY_VA
+    | 0x0040 > IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE
+    | 0x0080 > IMAGE_DLLCHARACTERISTICS_FORCE_INTEGRITY
+    | 0x0100 > IMAGE_DLLCHARACTERISTICS_NX_COMPAT
+    | 0x0200 > IMAGE_DLLCHARACTERISTICS_NO_ISOLATION
+    | 0x0400 > IMAGE_DLLCHARACTERISTICS_NO_SEH
+    | 0x0800 > IMAGE_DLLCHARACTERISTICS_NO_BIND
+    | 0x1000 > IMAGE_DLLCHARACTERISTICS_APPCONTAINER
+    | 0x2000 > IMAGE_DLLCHARACTERISTICS_WDM_DRIVER
+    | 0x4000 > IMAGE_DLLCHARACTERISTICS_GUARD_CF 
+    | 0x8000 > IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE 
+end
+
+reader IMAGE_DOS_HEADER where
+    | magic_number: 2 as bytes
+    | useless: 58
+    | pe_header_address: 4
+end
+
+reader PE_IMAGE_HEADER where
+    | signature: 4 as bytes
+    | machine: 2 as Machine
+    | section_numbers: 2
+    | time_stamp: 4
+    | useless: 8
+    | optional_header_size: 2 as int
+    | characteristics: 2 as Characteristics
+end
+
+reader PE_OPTIONAL_HEADER where
+    | magic_number: 2 as bytes
+    | major_linker_version: 1
+    | minor_linker_version: 1
+    | total_size: 4
+    | data_section_size: 4
+    | bss_section_size: 4
+    | entry_point_address: 4
+    | base_of_code: 4
+    | base_of_data: 4
+end
+
+reader WINDOWS_FIELDS where
+    | image_base: 4
+    | section_alignement: 4
+    | file_alignement: 4
+    | major_os_version: 2
+    | minor_os_version: 2
+    | major_image_version: 2
+    | minor_image_version: 2
+    | major_subsystem_version: 2
+    | minor_subsystem_version: 2
+    | win_version_value: 4
+    | image_size: 4
+    | headers_size: 4
+    | checksum: 4
+    | subsystem: 2 as Subsystem
+    | dll_characeristics: 2 as DllCharacteristics
+    | stack_reserve_size: 4
+    | stack_commit_size: 4
+    | heap_reserve_size: 4
+    | heap_commit_size: 4
+    | loader_flags: 4
+    | number_of_rva_and_sizes: 4
+end
+
+reader DATA_DIRECTORIES where
+    | export_table: 4
+    | export_table_size: 4
+    | import_table: 4
+    | import_table_size: 4
+    | ressource_table: 4
+    | ressource_table_size: 4
+    | exception_table: 4
+    | exception_table_size: 4
+    | certificate_table: 4
+    | certificate_table_size: 4
+    | base_relocation_table: 4
+    | base_relocation_table_size: 4
+    | debug: 4
+    | debug_size: 4
+    | architecture_data: 4
+    | architecture_data_size: 4
+    | global_ptr: 4
+    | useless_one: 4
+    | tls_table: 4
+    | tls_table_size: 4
+end
+
+main {
+    read IMAGE_DOS_HEADER
+    goto IMAGE_DOS_HEADER.pe_header_address
+    read PE_IMAGE_HEADER
+    read PE_OPTIONAL_HEADER
+    read WINDOWS_FIELDS
+    read DATA_DIRECTORIES
+}
