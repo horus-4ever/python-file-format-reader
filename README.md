@@ -70,3 +70,18 @@ main {
     read DATA_DIRECTORIES
 }
 ```
+
+## Example, in the python REPL
+```sh
+horus@horus:~$ python3 main.py formats/pe_file_format
+horus@horus:~$ python3 -i out/pe_file_format.py test.exe
+```
+```py
+>>> IMAGE_DOS_HEADER.magic_number
+b'MZ'
+>>> PE_IMAGE_HEADER.machine
+x86 (32 bits)
+>>> PE_IMAGE_HEADER.characteristics
+IMAGE_FILE_EXECUTABLE_IMAGE | IMAGE_FILE_32BIT_MACHINE | IMAGE_FILE_REMOVABLE_RUN_FROM_SWAP | IMAGE_FILE_NET_RUN_FROM_SWAP
+>>>
+```
