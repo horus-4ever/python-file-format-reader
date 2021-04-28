@@ -1,5 +1,5 @@
 ## About this project
-I am lazy, so it was boring to create a python reader for '.exe' files headers.
+I am lazy, and it was boring to create manually a python reader for '.exe' files headers.
 Thus, I decided to play with code generation and turn reader rules (files in the `formats` directory) into python code (files in the `out` directory).
 
 
